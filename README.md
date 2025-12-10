@@ -19,7 +19,7 @@ Clone this repo inside the custom_nodes directory in your ComfyUI install locati
 
 ## Nodes
 
-MaskedRegionCond is a convenience node to reduce the number of sockets that need to be connected. It's just two ConditioningSetMask outputs bundled together.
+MaskedRegionCond is a convenience node to reduce the number of sockets that need to be connected. It's really just two ConditioningSetMask bundled together.
 
 MultiMaskCouple is where the action is, it applies the masks and does a process called "attention coupling." 
 I can't fully explain attention coupling, but basically it applies the prompts to the appropriate regions while also allowing them to interact and combine.
@@ -28,17 +28,17 @@ The nodes can be found in conditioning > MultiMaskCouple.
 
 ## Usage
 
-Usage can seem a little complicated at first. A basic outline is provided here, but the example workflow might be more helpful.
+Usage can seem a little complicated at first. Here's a basic outline:
 
 1. Create a mask image using pure RGB colors
-2. Load the mask(s) using the built in "Load Image" and "Convert Image to Mask" nodes
+2. Load the masks using the built in "Load Image" and "Convert Image to Mask" nodes, one per color
 3. For each mask, create a positive and negative prompt and CLIP encode them as normal
-4. Feed those into a "Masked Region Conditioning" node.
-5. Connect the outputs to the main "MultiMaskCouple" node.
-6. You will also need a default positive and default negative prompt, this is applied to any unmasked regions, and is also mixed in when strength < 1.
+4. Feed each of those pairs into a "Masked Region Conditioning" node.
+5. Connect all the outputs, along with the model, to the main "MultiMaskCouple" node.
+6. You will also need a default positive and default negative prompt, this is applied to any unmasked regions, and is also mixed in when strength < 1. It can be empty if the whole image is masked.
 7. The outputs of MultiMaskCouple hook into KSampler as normal.
 
-## Example Output
+## Example
 
 This image:
 
@@ -48,13 +48,20 @@ was made with this mask:
 
 ![Example Mask](examples/trio-mask.png)
 
-and [this workflow](examples/multimask-example.json).
+and a prompt like:
+
+- Default: beach
+- Red: man, space suit, standing
+- Green: woman, scrubs, face mask, crouching
+- Blue: dog, yellow labrador, laying
 
 ## Tips and Notes
 
-- This is not strict masking. The regions can interact through the attention coupling process. This is a positive feature, but it can get in the way sometimes. Phrases like "left of trio" can help a lot in keeping things separate. Black regions are also useful for enforcing spacing.
+- This is not strict masking. The regions can interact through the attention coupling process. This is a positive feature, but it can get in the way sometimes. Black regions can be useful for enforcing spacing.
+- This process is not perfect. It's kind of pushing the boundaries of what these models are designed to do. So while this is a powerful tool, it is not an automatic success every time, particularly with 3 or more masks.
 - It can be a hassle to manage the intersection of the different prompts (what they have in common, like setting and camera angle). The string manipulation nodes like Concat can be used to make this more convenient.
-- Keeping the masks simple is usually a good idea. I've included a few examples.
-- Developing an intuition for how to design masks takes time and is tricky to explain. Experiment!
-- This README is a work in progress. I'll write a more full-fledged guide soon.
+- Keeping the masks simple is usually a good idea. Don't try to mask a detailed pose or outline, it won't work the way you'd like.
+- Developing an intuition for how to design masks takes time and is tricky to explain. It's more about evoking the composition than dictating it. Experiment!
 - Remember that the default mask is a fallback, not something applied globally. It will only be used in black regions or places where total strength < 1.
+- Masks can overlap, which sometimes helps smooth interactions but also can increase bleed. Overlap the colors additively (i.e. red + green = yellow).
+- This README is a work in progress. I'll write a more full-fledged guide soon.
