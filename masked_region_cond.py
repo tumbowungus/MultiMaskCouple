@@ -1,4 +1,3 @@
-# masked_region_cond.py
 import torch
 from nodes import ConditioningSetMask
 

@@ -1,4 +1,3 @@
-# attention_couple.py — simple label mapping (0=cond,1=uncond) + overlap-safe mixing + per-pixel base + device-aware fp32
 import torch
 import torch.nn.functional as F
 from contextlib import nullcontext
@@ -189,7 +188,6 @@ class AttentionCouple:
 
     def make_patch(self, module):
         def patch(q, k, v, extra_options):
-            # Simple mapping: same order, 0=cond, 1=uncond
             cond_or_uncond = extra_options["cond_or_uncond"]  # list of 0/1 aligned with q_list
             q_list = q.chunk(len(cond_or_uncond), dim=0)  # same order as cond_or_uncond
             b = q_list[0].shape[0]
@@ -274,7 +272,6 @@ class AttentionCouple:
 
             out = []
             for i, c in enumerate(cond_or_uncond):
-                # Mapping per your observation: 0=cond, 1=uncond; q_list shares the same order
                 if int(c) == 0:
                     masks_bank, k_bank, v_bank, length = masks_cond, k_cond, v_cond, len_pos
                 else:

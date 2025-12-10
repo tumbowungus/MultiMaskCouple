@@ -1,4 +1,3 @@
-# comfy_couple.py — minimal combine + per-pixel global default weight in AttentionCouple
 from __future__ import annotations
 import torch
 from nodes import ConditioningCombine
