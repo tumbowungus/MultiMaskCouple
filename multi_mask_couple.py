@@ -37,17 +37,8 @@ class MultiMaskCouple:
             rn = kwargs.get(f"region_{i}_negative", None)
             if rp is not None:
                 pos_combined = _combine(pos_combined, rp)
-                print(f"Region {i} positive combined.")
-            else:
-                print("No region positive for region", i)
             if rn is not None:
                 neg_combined = _combine(neg_combined, rn)
-                print(f"Region {i} negative combined.")
-            else:
-                print("No region negative for region", i)
-
-        if pos_combined is None:
-            raise ValueError("No positive conditioning provided (need default_positive or region positives).")
 
         new_model, pos_out, neg_out = AttentionCouple().attention_couple(
             model=model,
