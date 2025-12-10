@@ -1,10 +1,10 @@
 # MultiMaskCouple
 
-This is simple custom node for [**ComfyUI**](https://github.com/comfyanonymous/ComfyUI) which simplifies the process of masking your prompts, i.e. applying them to only part of the image.
+MultiMaskCouple is a custom node for [ComfyUI](https://github.com/comfyanonymous/ComfyUI) which simplifies the process of masking your prompts, i.e. applying them to only part of the image.
 
-MultiMaskCouple makes it a lot easier to manage scenes with multiple distinct characters. You can also heavily influence pose and composition.
+This makes it a lot easier to manage scenes with multiple distinct characters. You can also heavily influence pose and composition.
 
-This began as some minor improvements to [ComfyCouple](https://github.com/Danand/ComfyUI-ComfyCouple), but it's now pretty much its own separate thing.
+This project began as some minor improvements to [ComfyCouple](https://github.com/Danand/ComfyUI-ComfyCouple), but it's now pretty much its own separate thing.
 
 ## Installation
 
@@ -13,7 +13,7 @@ Clone this repo inside the custom_nodes directory in your ComfyUI install locati
 ## Features
 
 - Arbitrary number of masks
-- Any image resolution
+- Any image resolution / aspect ratio
 - Fast attention coupling
 - Convenient interface
 
@@ -28,14 +28,14 @@ The nodes can be found in conditioning > MultiMaskCouple.
 
 ## Usage
 
-Usage can seem a little complicated at first. Here's a basic outline:
+It can seem a little complicated at first, but once you get it, it'll be fine. Here's a basic outline:
 
 1. Create a mask image using pure RGB colors
 2. Load the masks using the built in "Load Image" and "Convert Image to Mask" nodes, one per color
 3. For each mask, create a positive and negative prompt and CLIP encode them as normal
-4. Feed each of those pairs into a "Masked Region Conditioning" node.
-5. Connect all the outputs, along with the model, to the main "MultiMaskCouple" node.
-6. You will also need a default positive and default negative prompt, this is applied to any unmasked regions, and is also mixed in when strength < 1. It can be empty if the whole image is masked.
+4. Feed each of those pairs, along with the mask, into a "Masked Region Conditioning" node.
+5. You will also need a default positive and default negative prompt, this is applied to any unmasked regions, and is also mixed in when strength < 1. It can be empty if the whole image is masked.
+6. Connect all the outputs, along with the model, to the main "MultiMaskCouple" node.
 7. The outputs of MultiMaskCouple hook into KSampler as normal.
 
 ## Example
