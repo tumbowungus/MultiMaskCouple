@@ -11,28 +11,11 @@ Clone this repo inside the custom_nodes directory in your ComfyUI install locati
 
 ## Features
 
-- Control multiple prompts in one image
+- Control multiple regions of one image
 - Arbitrary number of masks
 - Any image resolution / aspect ratio
 - Fast attention coupling
 - Convenient interface
-
-## Example
-
-This image:
-
-![Example Trio](examples/example-trio.png)
-
-was made with this mask:
-
-![Example Mask](examples/trio-mask.png)
-
-and a prompt like:
-
-- Default: beach
-- Red: man, space suit, standing
-- Green: woman, scrubs, face mask, crouching
-- Blue: dog, yellow labrador, laying
 
 ## Nodes
 
@@ -51,23 +34,41 @@ It can seem a little complicated at first, but once you get it, it'll be fine. H
 2. Load the masks using the built-in "Load Image" and "Convert Image to Mask" nodes, one per color.
 3. For each mask, create a positive and negative prompt and CLIP encode them as normal.
 4. Feed each of those pairs, along with the mask, into a "MaskedRegionCond" node.
-5. You will also need a default positive and default negative prompt, this is applied to any unmasked regions, and is also mixed in when strength < 1. It can be empty.
-6. Connect all the outputs, along with the model, to a "MultiMaskCouple" node.
-7. The outputs of MultiMaskCouple hook into KSampler as normal.
+5. Connect all the outputs, along with the model and CLIP, to a "MultiMaskCouple" node.
+6. The outputs of MultiMaskCouple hook into KSampler as normal.
 
-There are also two example workflows included:
-- [Multimask-Template.json](examples/MultiMask-Template.json) shows the usage described above
-- [Multimask-Template-String-Concat.json](examples/MultiMask-Template-String-Concat.json) shows a slightly more complex pattern that makes the default prompts behave as global prompts.
+The included [Example Workflow](examples/masking-template.json) has an additional feature, a Global Positive String and a Global Negative String.
+These are simply convenience fields which are appended to each regional prompt before encoding, so that you don't have to add or remove universal things, 
+like the background or quality keywords, in more than one place.
+
+## Example
+
+This image:
+
+![Example Trio](examples/example-trio.png)
+
+was made with this mask:
+
+![Example Mask](examples/trio-tall.png)
+
+and a prompt like:
+
+Red: astronaut, standing
+
+Blue: surgeon, woman, crouching
+
+Green: yellow labrador, laying
+
+Global Positive: beach, sand, sky, trio
+
+Global Negative: bathing suit
 
 ## Tips and Notes
 
 - *This process is not perfect*. It's kind of pushing the boundaries of what these models are designed to do. So while this is a powerful tool, it is not an automatic success every time, particularly with 3 or more masks.
-- This is not strict masking or inpainting. The regions can interact through the attention coupling process. This is a positive feature, but it can get in the way sometimes. Black regions can be useful for enforcing spacing.
+- This is not strict masking or inpainting. The regions can interact through the attention coupling process. This is a positive feature, but it can get in the way sometimes. Small black borders can be useful for enforcing spacing.
 - It can be a hassle to manage the intersection of the different prompts (what they have in common, like setting and camera angle). There is an example workflow included that demonstrates using the string concat node to make this more convenient.
 - Keeping the masks simple is usually a good idea. Don't try to mask a detailed pose or outline, it won't work the way you'd like.
 - Developing an intuition for how to design masks takes time and is tricky to explain. It's more about evoking the composition than dictating it. Experiment!
-- Remember that the default mask is a fallback, not something applied globally. It will only be used in black regions or places where total strength < 1.
 - Masks can overlap, which sometimes helps smooth interactions but also can increase bleed. Overlap the colors additively (i.e. red + green = yellow).
 - To avoid issues, the mask image should be the same resolution as the output image.
-
-This README is a work in progress. I'll write a more full-fledged guide soon.
