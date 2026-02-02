@@ -4,6 +4,7 @@ from contextlib import nullcontext
 import copy
 import comfy
 from comfy.ldm.modules.attention import optimized_attention
+from nodes import CLIPTextEncode
 
 def _safe_interpolate_nchw(x: torch.Tensor, size):
     return F.interpolate(x, size=size, mode="nearest-exact")
@@ -168,7 +169,7 @@ class AttentionCouple:
     FUNCTION = "attention_couple"
     CATEGORY = "loaders"
 
-    def attention_couple(self, model, positive, negative, mode):
+    def attention_couple(self, model, clip, positive, negative, mode):
         if mode == "Latent":
             return (model, positive, negative)
 
@@ -183,8 +184,11 @@ class AttentionCouple:
 
         apply_patches(new_model, self.make_patch)
 
-        # Return only the first pooled items like original behavior
-        return new_model, [self.raw_positive[0]], [self.raw_negative[0]]
+        # Return with empty conditionings
+        empty_pos = CLIPTextEncode().encode(clip, "")[0]
+        empty_neg = CLIPTextEncode().encode(clip, "")[0]
+
+        return new_model, [empty_pos[0]], [empty_neg[0]]
 
     def make_patch(self, module):
         def patch(q, k, v, extra_options):

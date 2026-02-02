@@ -17,19 +17,18 @@ class MultiMaskCouple:
         return {
             "required": {
                 "model": ("MODEL",),
-                "default_positive": ("CONDITIONING",),
-                "default_negative": ("CONDITIONING",),
-                "inputcount": ("INT", {"default": 2, "min": 1, "max": 16, "step": 1}),
+                "clip": ("CLIP",),
+                "inputcount": ("INT", {"default": 1, "min": 1, "max": 16, "step": 1}),
                 # Region 1
                 "region_1_positive": ("CONDITIONING",),
                 "region_1_negative": ("CONDITIONING",),
             }
         }
 
-    def process(self, model, default_positive, default_negative, inputcount: int, **kwargs):
+    def process(self, model, clip, inputcount: int, **kwargs):
 
-        pos_combined = default_positive
-        neg_combined = default_negative
+        pos_combined = None
+        neg_combined = None
 
         # Collect region conditionings (pre-masked by MaskedRegionCond)
         for i in range(1, inputcount + 1):
@@ -42,6 +41,7 @@ class MultiMaskCouple:
 
         new_model, pos_out, neg_out = AttentionCouple().attention_couple(
             model=model,
+            clip=clip,
             positive=pos_combined,
             negative=neg_combined,
             mode="Attention",
